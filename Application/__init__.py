@@ -22,19 +22,20 @@ def create_app(test_config=None):
     except OSError:
         pass
     
-    # a simple page that says hello
-    @app.route('/')
-    def hello():
-        return 'Jai Siya Ram'
     
     #database thing.......
     from . import db
     db.init_app(app)
     
     
-    #blueprints thing
+    #blueprints thing for auth
     from . import auth
     app.register_blueprint(auth.bp)
+    
+    #Bluprints for blogs
+    from . import blog
+    app.register_blueprint(blog.bp)
+    app.add_url_rule('/', endpoint= 'index')
     
 
     return app

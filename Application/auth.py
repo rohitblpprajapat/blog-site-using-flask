@@ -6,19 +6,19 @@ from Application.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/register', methods = ('GET', 'POST'))
+@bp.route('/register', methods=('GET', 'POST'))
 def register():
-    if request.method == "POST":
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db
+        db = get_db()
         error = None
-        
+
         if not username:
-            error = "Username is required."
+            error = 'Username is required.'
         elif not password:
-            error = "Password is required."
-            
+            error = 'Password is required.'
+
         if error is None:
             try:
                 db.execute(
@@ -27,11 +27,12 @@ def register():
                 )
                 db.commit()
             except db.IntegrityError:
-                error = f"User {username} already exists."
+                error = f"User {username} is already registered."
             else:
-                return redirect(url_for('auth.login'))
-            
+                return redirect(url_for("auth.login"))
+
         flash(error)
+
     return render_template('auth/register.html')
 
 @bp.route('login', methods=('GET', 'POST'))
@@ -39,21 +40,22 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db
+        db = get_db()
         error = None
         user = db.execute(
-            'SELECT * FROM user WHERE username =?', (username,)
+            'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
         
         if user is None:
             error = 'Incorrect Username.'
-        elif password is None:
-            error  = 'Incorrect Password'
+        elif not check_password_hash(user['password'], password):
+            error  = 'Incorrect Password.'
             
         if error is None:
             session.clear()
             session['user_id'] = user['id']
             return redirect(url_for('index'))
+        
         flash(error)
         
     return render_template('auth/login.html')
@@ -65,7 +67,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT * FORM user WHERE id = ?', (user_id,)
+            'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
         
 @bp.route('/logout')

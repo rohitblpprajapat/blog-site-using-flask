@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <title>{% block title%} {% endblock %}- GreatWebs</title>
-<link rel="stylesheet" href="{{ urlfor('static', filename='style.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
 <nav>
     <h1> GreatWebs </h1>
     <ul>
@@ -9,8 +9,9 @@
             <li><span>{{g.user['username']}}</span>
             <li><a href="{{url_for('auth.logout')}}">Logout</a></li>
         {%else%}
-        <li><a href="url_for('auth.register')">Register</a></li>
-        <li><a href="url_for('auth.login')">login</a></li>
+        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+        <li><a href="{{ url_for('auth.login') }}">login</a></li>
+        {%endif%}
     </ul>
 </nav>  
 <section class="content">
